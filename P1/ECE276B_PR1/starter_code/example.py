@@ -1,3 +1,5 @@
+from numba import typeof
+
 from utils import *
 
 MF = 0  # Move Forward
@@ -39,7 +41,8 @@ def example_use_of_gym_env():
     front_cell = env.front_pos  # == agent_pos + agent_dir
 
     # Access the cell at coord: (2,3)
-    cell = env.grid.get(2, 3)  # NoneType, Wall, Key, Goal
+    cell = env.grid.get(3, 3)  # NoneType, Wall, Key, Goal
+    print(type(cell))
 
     # Get the door status
     door = env.grid.get(info["door_pos"][0], info["door_pos"][1])
@@ -92,3 +95,5 @@ def example_use_of_gym_env():
     print("Step Count: {}".format(env.step_count))
     
 
+if __name__ == "__main__":
+    example_use_of_gym_env()
