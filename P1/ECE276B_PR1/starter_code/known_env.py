@@ -44,6 +44,11 @@ TR_MAP = {
     UP:RIGHT
 }
 
+def make_node(t, pos, dir, key, door):
+    return (t, tuple(pos), tuple(dir), key, door)
+
+def make_state(pos, dir, key, door):
+    return (tuple(pos), tuple(dir), key, door)
 
 class KnownEnv(object):
     def __init__(self, env_path):
@@ -63,8 +68,8 @@ class KnownEnv(object):
         is_open = door.is_open
         is_carrying = self.env.carrying is not None
 
-        self.init_state = [agent_pos, agent_dir, is_carrying, is_open]
-        self.init_node = [self.t] + self.init_state
+        self.init_state = make_state(agent_pos, agent_dir, is_carrying, is_open)
+        self.init_node = make_node(self.t, agent_pos, agent_dir, is_open, is_open)
 
 
     def __init_value(self):
@@ -76,18 +81,18 @@ class KnownEnv(object):
         is_open = self.init_node[ISDOOR]
         # initial node
         for i in range(self.t, self.T):
-            node = [i,agent_pos,agent_dir,is_carrying,is_open]
-            self.value[tuple(node)] = 0.0
+            node = make_node(i,agent_pos,agent_dir,is_carrying,is_open)
+            self.value[node] = 0.0
         # other node
         for state in self.state:
             if state == self.init_state:
                 continue
             # at t=0 is inf
-            node = [self.t] + state
-            self.value[tuple(node)] = np.inf
+            node = make_node(self.t, state[0], state[1], state[2], state[3])
+            self.value[node] = np.inf
             # at t=1 invalid transition is inf
-            node = [self.t+1] + state
-            self.value[tuple(node)] = np.inf
+            node = make_node(self.t+1, state[0], state[1], state[2], state[3])
+            self.value[node] = np.inf
         # valid transition at t=1
         for u in [MF,TL,TR,PK,UD]:
             next_node, cost = self.transition(self.init_node, u)
@@ -103,18 +108,18 @@ class KnownEnv(object):
                 cell = self.env.grid.get(col, row)
                 if not isinstance(cell, Wall):
                     pose = np.array([col,row])
-                    self.T += 1
                     # possible directions
                     for dir in ORI:
                         # possible key and door
-                        s1 = [pose, dir, 0, 0]
-                        s2 = [pose, dir, 1, 0]
-                        s3 = [pose, dir, 0, 1]
-                        s4 = [pose, dir, 1, 1]
+                        s1 = make_state(pose, dir, 0, 0)
+                        s2 = make_state(pose, dir, 1, 0)
+                        s3 = make_state(pose, dir, 0, 1)
+                        s4 = make_state(pose, dir, 1, 1)
                         self.state.append(s1)
                         self.state.append(s2)
                         self.state.append(s3)
                         self.state.append(s4)
+                        self.T += 4
         self.T -= 1
 
 
@@ -133,7 +138,7 @@ class KnownEnv(object):
         # MF
         if u == MF:
             front_pos = agent_pos + agent_dir
-            next_node = [t+1, front_pos, agent_dir, is_carrying, is_open]
+            next_node = make_node(t+1, front_pos, agent_dir, is_carrying, is_open)
             front_grid = self.env.grid.get(front_pos[0], front_pos[1])
             # check wall
             if isinstance(front_grid, Wall):
@@ -149,18 +154,18 @@ class KnownEnv(object):
         # TL
         elif u == TL:
             next_dir = TL_MAP[(agent_dir[0], agent_dir[1])]
-            next_node = [t+1, agent_pos, np.array([next_dir[0], next_dir[1]]), is_carrying, is_open]
+            next_node = make_node(t+1, agent_pos, np.array([next_dir[0], next_dir[1]]), is_carrying, is_open)
             return next_node, TL_COST
         # TR
         elif u == TR:
             next_dir = TR_MAP[(agent_dir[0], agent_dir[1])]
-            next_node = [t + 1, agent_pos, np.array([next_dir[0], next_dir[1]]), is_carrying, is_open]
+            next_node = make_node(t + 1, agent_pos, np.array([next_dir[0], next_dir[1]]), is_carrying, is_open)
             return next_node, TR_COST
         # PK
         elif u == PK:
             front_pos = agent_pos + agent_dir
             front_grid = self.env.grid.get(front_pos[0], front_pos[1])
-            next_node = [t+1, agent_pos, agent_dir, 1, is_open]
+            next_node = make_node(t+1, agent_pos, agent_dir, 1, is_open)
             # check key
             if isinstance(front_grid, Key):
                 return next_node, PK_COST
@@ -169,7 +174,7 @@ class KnownEnv(object):
         elif u == UD:
             front_pos = agent_pos + agent_dir
             front_grid = self.env.grid.get(front_pos[0], front_pos[1])
-            next_node = [t + 1, agent_pos, agent_dir, is_carrying, 1]
+            next_node = make_node(t + 1, agent_pos, agent_dir, is_carrying, 1)
             # check door
             if isinstance(front_grid, Door):
                 if (not is_open) and (is_carrying):
@@ -192,21 +197,21 @@ class KnownEnv(object):
         # MF
         if u == MF:
             back_pos = agent_pos - agent_dir
-            prev_node = [t - 1, back_pos, agent_dir, is_carrying, is_open]
+            prev_node = make_node(t - 1, back_pos, agent_dir, is_carrying, is_open)
         # TL
         elif u == TL:
             prev_dir = TR_MAP[(agent_dir[0], agent_dir[1])]
-            prev_node = [t - 1, agent_pos, np.array([prev_dir[0], prev_dir[1]]), is_carrying, is_open]
+            prev_node = make_node(t - 1, agent_pos, np.array([prev_dir[0], prev_dir[1]]), is_carrying, is_open)
         # TR
         elif u == TR:
             prev_dir = TL_MAP[(agent_dir[0], agent_dir[1])]
-            prev_node = [t - 1, agent_pos, np.array([prev_dir[0], prev_dir[1]]), is_carrying, is_open]
+            prev_node = make_node(t - 1, agent_pos, np.array([prev_dir[0], prev_dir[1]]), is_carrying, is_open)
         # PK
         elif u == PK:
-            prev_node = [t - 1, agent_pos, agent_dir, 0, is_open]
+            prev_node = make_node(t - 1, agent_pos, agent_dir, 0, is_open)
         # UD
         elif u == UD:
-            prev_node = [t - 1, agent_pos, agent_dir, is_carrying, 0]
+            prev_node = make_node(t - 1, agent_pos, agent_dir, is_carrying, 0)
         return prev_node
 
     def fdp(self):
@@ -219,19 +224,21 @@ class KnownEnv(object):
         self.policy = {}
         for t in range(2, self.T):
             for prev_state in self.state:
-                prev_node = [t-1] + prev_state
-                prev_value = self.value.get(tuple(prev_node), np.inf)
+                prev_node = make_node(t-1, prev_state[0], prev_state[1], prev_state[2], prev_state[3])
+                prev_value = self.value.get(prev_node, np.inf)
                 for u in [MF, TL, TR, PK, UD]:
                     next_node, cost = self.transition(prev_node, u)
                     if cost == np.inf:
                         continue
                     total_cost = prev_value + cost
-                    if total_cost < self.value.get(tuple(next_node), np.inf):
-                        self.value[tuple(next_node)] = total_cost
-                        self.policy[tuple(next_node)] = u
+                    if total_cost < self.value.get(next_node, np.inf):
+                        self.value[next_node] = total_cost
+                        self.policy[next_node] = u
 
     def is_goal(self, node):
-        return tuple(node[POS]) == tuple(self.info["goal_pos"])
+        goal = self.info['goal_pos']
+        node_pos = node[POS]
+        return (node_pos[0] == goal[0] and node_pos[1] == goal[1])
 
     def extract_optimal_trajectory(self):
         # find reachable goal
@@ -241,14 +248,16 @@ class KnownEnv(object):
             if self.is_goal(node) and self.value[node] < min_cost:
                 min_cost = self.value[node]
                 best_goal_node = node
+        print(self.value)
         if best_goal_node is None:
             print("No reachable goal found.")
             return []
         # build action sequence
         traj = []
-        node = list(best_goal_node)
-        while tuple(node) in self.policy:
-            a = self.policy[tuple(node)]
+        node = best_goal_node
+        while node in self.policy:
+            a = self.policy[node]
             traj.insert(0, a)
             node = self.reverse_transition(node, a)
         return traj
+
