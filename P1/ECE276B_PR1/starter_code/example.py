@@ -35,14 +35,14 @@ def example_use_of_gym_env():
 
     # Get the agent direction
     agent_dir = env.dir_vec  # or env.agent_dir
-
+    print(agent_pos + agent_dir)
 
     # Get the cell in front of the agent
     front_cell = env.front_pos  # == agent_pos + agent_dir
 
     # Access the cell at coord: (2,3)
     cell = env.grid.get(3, 3)  # NoneType, Wall, Key, Goal
-    print(type(cell))
+
 
     # Get the door status
     door = env.grid.get(info["door_pos"][0], info["door_pos"][1])

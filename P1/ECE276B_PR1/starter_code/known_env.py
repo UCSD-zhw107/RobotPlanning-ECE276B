@@ -56,9 +56,11 @@ class KnownEnv(object):
         self.t = 0
         self.value = {}
         self.state = []
+        self.policy = {}
         self.__init_agent()
         self.__init_state_space()
         self.__init_value()
+        plot_env(self.env)
 
     def __init_agent(self):
         # initalize initial state
@@ -96,7 +98,10 @@ class KnownEnv(object):
         # valid transition at t=1
         for u in [MF,TL,TR,PK,UD]:
             next_node, cost = self.transition(self.init_node, u)
-            self.value[tuple(next_node)] = cost
+            if cost < np.inf:
+                if self.value.get(next_node, np.inf) > cost:
+                    self.value[next_node] = cost
+                    self.policy[next_node] = u
 
     def __init_state_space(self):
         # initialize state space (doesn't include WALL)
@@ -126,10 +131,12 @@ class KnownEnv(object):
     def transition(self, node, u):
         assert u in [MF, TL, TR, PK, UD], 'Invalid transition'
         t = node[TIME]
-        agent_pos = node[POS]
-        agent_dir = node[DIR]
+
         is_carrying = node[ISKEY]
         is_open = node[ISDOOR]
+
+        agent_pos = np.asarray(node[POS]) if not isinstance(node[POS], np.ndarray) else node[POS]
+        agent_dir = np.asarray(node[DIR]) if not isinstance(node[DIR], np.ndarray) else node[DIR]
 
         # check position
         agent_grid = self.env.grid.get(agent_pos[0], agent_pos[1])
@@ -185,8 +192,8 @@ class KnownEnv(object):
         assert u in [MF, TL, TR, PK, UD]
 
         t = node[TIME]
-        agent_pos = node[POS]
-        agent_dir = node[DIR]
+        agent_pos = np.asarray(node[POS]) if not isinstance(node[POS], np.ndarray) else node[POS]
+        agent_dir = np.asarray(node[DIR]) if not isinstance(node[DIR], np.ndarray) else node[DIR]
         is_carrying = node[ISKEY]
         is_open = node[ISDOOR]
 
@@ -221,7 +228,6 @@ class KnownEnv(object):
         Returns:
             opt_policy: n sequence of actions
         """
-        self.policy = {}
         for t in range(2, self.T):
             for prev_state in self.state:
                 prev_node = make_node(t-1, prev_state[0], prev_state[1], prev_state[2], prev_state[3])
@@ -248,7 +254,6 @@ class KnownEnv(object):
             if self.is_goal(node) and self.value[node] < min_cost:
                 min_cost = self.value[node]
                 best_goal_node = node
-        print(self.value)
         if best_goal_node is None:
             print("No reachable goal found.")
             return []
