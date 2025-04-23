@@ -200,9 +200,9 @@ def create_random_envs():
 
 
 def main():
-    for map_name in known_map_configs.keys():
-        create_known_envs(map_name)
-    #create_random_envs()
+    #for map_name in known_map_configs.keys():
+        #create_known_envs(map_name)
+    create_random_envs()
 
 
 if __name__ == "__main__":

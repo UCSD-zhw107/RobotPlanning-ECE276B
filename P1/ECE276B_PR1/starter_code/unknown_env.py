@@ -149,10 +149,10 @@ def decode_node(index):
     return node
 
 
-class UnknownEnv(object):
-    def __init__(self):
+class UnknownPolicy(object):
+    def __init__(self, t=NUM_STATE):
         self.t = 0
-        self.T = NUM_STATE
+        self.T = t
         self.value = {}
         self.state = []
         self.policy = {}
@@ -223,6 +223,7 @@ class UnknownEnv(object):
     def transition(self, node, u):
         assert u in [MF, TL, TR, PK, UD], 'Invalid action'
         assert node[POS] not in WALL_POS, 'Invalid state'
+        #assert 0 <= node[POS][0] < WIDTH and 0 <= node[POS][1] < HEIGHT, 'Invalid state'
         # state info
         t = node[TIME]
         agent_pos = np.asarray(node[POS]) if not isinstance(node[POS], np.ndarray) else node[POS]
@@ -237,11 +238,15 @@ class UnknownEnv(object):
         if u == MF:
             front_pos = agent_pos + agent_dir
             next_node = make_node(t+1, front_pos, agent_dir, is_carrying, is_door1_open, is_door2_open, key_pos, goal_pos)
+            # out boundary
+            if not (0 <= front_pos[0] < WIDTH and 0 <= front_pos[1] < HEIGHT):
+                return next_node, np.inf
+
             # check wall
             if tuple(front_pos) in WALL_POS:
                 return next_node, np.inf
             # check key
-            elif tuple(front_pos) in KEY_POSITION:
+            elif (tuple(front_pos) == key_pos) and (not is_carrying):
                 return next_node, np.inf
             # check door 1
             elif tuple(front_pos) == DOOR_POS[0]:
@@ -252,6 +257,7 @@ class UnknownEnv(object):
                 if not is_door2_open:
                     return next_node, np.inf
             return next_node, MF_COST
+
         # TL
         elif u == TL:
             next_dir = TL_MAP[(agent_dir[0], agent_dir[1])]
@@ -270,7 +276,7 @@ class UnknownEnv(object):
             if is_carrying:
                 return next_node, np.inf
             # check key position
-            if tuple(front_pos) in KEY_POSITION:
+            if tuple(front_pos) == key_pos:
                 return next_node, PK_COST
             return next_node, np.inf
         # UD
@@ -321,4 +327,103 @@ class UnknownEnv(object):
                 print(f"[Early Stop] FDP converged at t = {t}")
                 break
 
+        np.savez_compressed("unknown_sol.npz", value=self.value, policy=self.policy)
 
+
+class UnknownEnv(object):
+    def __init__(self, env_path):
+        self.env, self.info, self.env_path = load_random_env(env_path)
+        self.goal_pose = self.info['goal_pos']
+        self.key_pose = self.info['key_pos']
+        self.is_door1_open = self.info['door_open'][0]
+        self.is_door2_open = self.info['door_open'][1]
+        self.init_agent_pos = INIT_POS
+        self.init_agent_dir = INIT_DIR
+        self.__load_policy()
+        plot_env(self.env)
+
+
+    def __load_policy(self):
+        # load policy
+        data = np.load("unknown_sol.npz", allow_pickle=True)
+        self.value = data["value"].item()
+        self.policy = data["policy"].item()
+
+    def reverse_transition(self, node, u):
+        assert u in [MF, TL, TR, PK, UD], 'Invalid action'
+        assert node[POS] not in WALL_POS, 'Invalid state'
+        #assert 0 <= node[POS][0] < WIDTH and 0 <= node[POS][1] < HEIGHT, 'Invalid state'
+        # state info
+        t = node[TIME]
+        agent_pos = np.asarray(node[POS]) if not isinstance(node[POS], np.ndarray) else node[POS]
+        agent_dir = np.asarray(node[DIR]) if not isinstance(node[DIR], np.ndarray) else node[DIR]
+        is_carrying = node[ISKEY]
+        is_door1_open = node[DOOR_1]
+        is_door2_open = node[DOOR_2]
+        key_pos = node[KEY_POS]
+        goal_pos = node[GOAL_POS]
+
+        # MF
+        if u == MF:
+            back_pos = agent_pos - agent_dir
+            prev_node = make_node(t - 1, back_pos, agent_dir, is_carrying, is_door1_open, is_door2_open, key_pos,
+                                  goal_pos)
+            return prev_node
+        # TL
+        elif u == TL:
+            prev_dir = TR_MAP[(agent_dir[0], agent_dir[1])]
+            prev_node = make_node(t - 1, agent_pos, prev_dir, is_carrying, is_door1_open, is_door2_open, key_pos,
+                                  goal_pos)
+            return prev_node
+        # TR
+        elif u == TR:
+            prev_dir = TL_MAP[(agent_dir[0], agent_dir[1])]
+            prev_node = make_node(t - 1, agent_pos, prev_dir, is_carrying, is_door1_open, is_door2_open, key_pos,
+                                  goal_pos)
+            return prev_node
+        # PK
+        elif u == PK:
+            prev_node = make_node(t - 1, agent_pos, agent_dir, 0, is_door1_open, is_door2_open, key_pos, goal_pos)
+            return prev_node
+        # UD
+        elif u == UD:
+            front_pos = agent_pos + agent_dir
+            if tuple(front_pos) == DOOR_POS[0] and is_door1_open == 1:
+                return make_node(t - 1, agent_pos, agent_dir, is_carrying, 0, is_door2_open, key_pos, goal_pos)
+            elif tuple(front_pos) == DOOR_POS[1] and is_door2_open == 1:
+                return make_node(t - 1, agent_pos, agent_dir, is_carrying, is_door1_open, 0, key_pos, goal_pos)
+            else:
+                raise ValueError("Invalid reverse UD action")
+
+
+    def extract_optimal_trajectory(self):
+        key_pos = self.key_pose
+        goal_pos = self.goal_pose
+        door1_open = int(self.is_door1_open)
+        door2_open = int(self.is_door2_open)
+        min_cost = np.inf
+        best_node = None
+        for idx, v in self.value.items():
+            node = decode_node(idx)
+            t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+            if (tuple(k_pos) == tuple(key_pos) and
+                    tuple(g_pos) == tuple(goal_pos) and
+                    d1 == door1_open and d2 == door2_open and
+                    tuple(pos) == tuple(goal_pos)):
+
+                if v < min_cost:
+                    min_cost = v
+                    best_node = node
+
+        if best_node is None:
+            print("No reachable goal found for current env setup.")
+            return []
+
+        # Trace back trajectory
+        traj = []
+        node = best_node
+        while encode_node(node) in self.policy:
+            action = self.policy[encode_node(node)]
+            traj.insert(0, action)
+            node = self.reverse_transition(node, action)
+        return traj
