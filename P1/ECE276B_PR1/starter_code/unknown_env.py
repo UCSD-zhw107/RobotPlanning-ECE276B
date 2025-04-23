@@ -395,28 +395,44 @@ class UnknownEnv(object):
             else:
                 raise ValueError("Invalid reverse UD action")
 
-
-    def extract_optimal_trajectory(self):
-        #TODO:ALL WRONG
-        key_pos = self.key_pose # Wrong
+    def find_potential_goal(self):
+        # construct potential goal state
+        min_cost = np.inf
+        best_node = None
+        key_pos = self.key_pose
         goal_pos = self.goal_pose
         door1_open = int(self.is_door1_open)
         door2_open = int(self.is_door2_open)
-        min_cost = np.inf
-        best_node = None
-        for idx, v in self.value.items():
-            node = decode_node(idx)
-            t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
-            # TODO: PROBLEM!!!!
-            if (tuple(k_pos) == tuple(key_pos) and
-                    tuple(g_pos) == tuple(goal_pos) and
-                    d1 >= door1_open and d2 >= door2_open and
-                    tuple(pos) == tuple(goal_pos)): #Wrong
 
-                if v < min_cost:
-                    min_cost = v
-                    best_node = node
+        # If at least 1 door open initially
+        if not (door1_open == 0 and door2_open == 0):
+            for idx, v in self.value.items():
+                node = decode_node(idx)
+                t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+                if (tuple(k_pos) == tuple(key_pos) and
+                        tuple(g_pos) == tuple(goal_pos) and
+                        d1 == door1_open and d2 == door2_open and
+                        tuple(pos) == tuple(goal_pos)):
+                    if v < min_cost:
+                        min_cost = v
+                        best_node = node
+        else:
+            for idx, v in self.value.items():
+                node = decode_node(idx)
+                t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+                # must have key if both door is closed initially, and at least 1 door is open at goal
+                query = (tuple(k_pos) == tuple(key_pos) and tuple(g_pos) == tuple(goal_pos)
+                         and tuple(pos) == tuple(goal_pos) and is_key==True and
+                         ((d1 == True and d2 == False) or (d1 == False and d2 == True))
+                         )
+                if query:
+                    if v < min_cost:
+                        min_cost = v
+                        best_node = node
+        return best_node
 
+    def extract_optimal_trajectory(self):
+        best_node = self.find_potential_goal()
         if best_node is None:
             print("No reachable goal found for current env setup.")
             return []
