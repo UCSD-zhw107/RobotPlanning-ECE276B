@@ -3,6 +3,7 @@ from example import example_use_of_gym_env
 from gymnasium.envs.registration import register
 from minigrid.envs.doorkey import DoorKeyEnv
 from known_env import *
+from unknown_env import *
 
 MF = 0  # Move Forward
 TL = 1  # Turn Left
@@ -39,21 +40,24 @@ def doorkey_problem(env):
 
 
 def partA():
-    env_path = "./envs/known_envs/doorkey-5x5-normal.env"
+    env_path = "./envs/known_envs/doorkey-6x6-direct.env"
     know_env = KnownEnv(env_path)
-    know_env.fdp()
-    seq = know_env.extract_optimal_trajectory()
+    seq = know_env.fdp()
     print(seq)
     #draw_gif_from_seq(seq, load_env(env_path)[0])  # draw a GIF & save
 
 
 def partB():
-    env_folder = "./envs/random_envs"
-    env, info, env_path = load_random_env(env_folder)
+    #env_folder = "./envs/random_envs"
+    #env, info, env_path = load_random_env(env_folder)
+    unknown_env = UnknownEnv()
+    print(len(unknown_env.state))
+    #unknown_env.fdp()
+    print('Finish')
 
 
 if __name__ == "__main__":
     #example_use_of_gym_env()
-    partA()
-    # partB()
+    #partA()
+    partB()
 

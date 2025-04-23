@@ -228,6 +228,7 @@ class KnownEnv(object):
         Returns:
             opt_policy: n sequence of actions
         """
+        # run fdp
         for t in range(2, self.T):
             for prev_state in self.state:
                 prev_node = make_node(t-1, prev_state[0], prev_state[1], prev_state[2], prev_state[3])
@@ -240,6 +241,9 @@ class KnownEnv(object):
                     if total_cost < self.value.get(next_node, np.inf):
                         self.value[next_node] = total_cost
                         self.policy[next_node] = u
+        # extract trajectory
+        traj = self.extract_optimal_trajectory()
+        return traj
 
     def is_goal(self, node):
         goal = self.info['goal_pos']
