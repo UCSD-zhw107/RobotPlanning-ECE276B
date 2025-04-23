@@ -48,13 +48,14 @@ def partA():
 
 
 def partB():
-    unknown_policy = UnknownPolicy(t=300)
-    unknown_policy.fdp()
-    print('Finish')
+    #unknown_policy = UnknownPolicy(t=300)
+    #unknown_policy.fdp()
+    #print('Finish')
     env_folder = "./envs/random_envs"
     unknown_env = UnknownEnv(env_folder)
-    seq = unknown_env.extract_optimal_trajectory()
-    print(seq)
+    #seq = unknown_env.extract_optimal_trajectory()
+    #print(seq)
+    unknown_env.check_goal((7,3), (2,2), True)
 
 
 if __name__ == "__main__":

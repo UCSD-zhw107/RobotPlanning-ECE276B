@@ -388,16 +388,17 @@ class UnknownEnv(object):
         # UD
         elif u == UD:
             front_pos = agent_pos + agent_dir
-            if tuple(front_pos) == DOOR_POS[0] and is_door1_open == 1:
+            if tuple(front_pos) == DOOR_POS[0] and is_door1_open == 1 and is_carrying:
                 return make_node(t - 1, agent_pos, agent_dir, is_carrying, 0, is_door2_open, key_pos, goal_pos)
-            elif tuple(front_pos) == DOOR_POS[1] and is_door2_open == 1:
+            elif tuple(front_pos) == DOOR_POS[1] and is_door2_open == 1 and is_carrying:
                 return make_node(t - 1, agent_pos, agent_dir, is_carrying, is_door1_open, 0, key_pos, goal_pos)
             else:
                 raise ValueError("Invalid reverse UD action")
 
 
     def extract_optimal_trajectory(self):
-        key_pos = self.key_pose
+        #TODO:ALL WRONG
+        key_pos = self.key_pose # Wrong
         goal_pos = self.goal_pose
         door1_open = int(self.is_door1_open)
         door2_open = int(self.is_door2_open)
@@ -406,10 +407,11 @@ class UnknownEnv(object):
         for idx, v in self.value.items():
             node = decode_node(idx)
             t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+            # TODO: PROBLEM!!!!
             if (tuple(k_pos) == tuple(key_pos) and
                     tuple(g_pos) == tuple(goal_pos) and
-                    d1 == door1_open and d2 == door2_open and
-                    tuple(pos) == tuple(goal_pos)):
+                    d1 >= door1_open and d2 >= door2_open and
+                    tuple(pos) == tuple(goal_pos)): #Wrong
 
                 if v < min_cost:
                     min_cost = v
@@ -427,3 +429,10 @@ class UnknownEnv(object):
             traj.insert(0, action)
             node = self.reverse_transition(node, action)
         return traj
+
+    def check_goal(self, goal_pos, key_pos, key):
+        for idx, v in self.value.items():
+            node = decode_node(idx)
+            t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+            if (tuple(k_pos) == tuple(key_pos) and goal_pos == g_pos and key == is_key and tuple(pos) == tuple(goal_pos)):
+                print(v)
