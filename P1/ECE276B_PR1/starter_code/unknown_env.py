@@ -330,7 +330,7 @@ class UnknownPolicy(object):
                 print(f"[Early Stop] FDP converged at t = {t}")
                 break
 
-        np.savez_compressed("output/unknown_sol.npz", value=self.value, policy=self.policy)
+        np.savez_compressed("./output/unknown_sol.npz", value=self.value, policy=self.policy)
 
 
 class UnknownEnv(object):
@@ -349,7 +349,7 @@ class UnknownEnv(object):
 
     def __load_policy(self):
         # load policy
-        data = np.load("output/unknown_sol.npz", allow_pickle=True)
+        data = np.load("./output/unknown_sol.npz", allow_pickle=True)
         self.value = data["value"].item()
         self.policy = data["policy"].item()
 
@@ -398,57 +398,6 @@ class UnknownEnv(object):
                 return make_node(t - 1, agent_pos, agent_dir, is_carrying, is_door1_open, 0, key_pos, goal_pos)
             else:
                 raise ValueError("Invalid reverse UD action")
-
-    def find_potential_goal(self):
-        # construct potential goal state
-        min_cost = np.inf
-        best_node = None
-        key_pos = self.key_pose
-        goal_pos = self.goal_pose
-        door1_open = int(self.is_door1_open)
-        door2_open = int(self.is_door2_open)
-
-        # If at least 1 door open initially
-        if not (door1_open == 0 and door2_open == 0):
-            for idx, v in self.value.items():
-                node = decode_node(idx)
-                t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
-                if (tuple(k_pos) == tuple(key_pos) and
-                        tuple(g_pos) == tuple(goal_pos) and
-                        d1 == door1_open and d2 == door2_open and
-                        tuple(pos) == tuple(goal_pos)):
-                    if v < min_cost:
-                        min_cost = v
-                        best_node = node
-        else:
-            for idx, v in self.value.items():
-                node = decode_node(idx)
-                t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
-                # must have key if both door is closed initially, and at least 1 door is open at goal
-                query = (tuple(k_pos) == tuple(key_pos) and tuple(g_pos) == tuple(goal_pos)
-                         and tuple(pos) == tuple(goal_pos) and is_key==True and
-                         ((d1 == True and d2 == False) or (d1 == False and d2 == True))
-                         )
-                if query:
-                    if v < min_cost:
-                        min_cost = v
-                        best_node = node
-        return best_node
-
-    def extract_optimal_trajectory(self):
-        best_node = self.find_potential_goal()
-        if best_node is None:
-            print("No reachable goal found for current env setup.")
-            return []
-
-        # Trace back trajectory
-        traj = []
-        node = best_node
-        while encode_node(node) in self.policy:
-            action = self.policy[encode_node(node)]
-            traj.insert(0, action)
-            node = self.reverse_transition(node, action)
-        return traj
 
     def extract_seq(self):
         key_pos = self.key_pose
@@ -506,10 +455,3 @@ class UnknownEnv(object):
             print("No reachable goal found for current env setup.")
             return []
         return best_traj
-
-    def check_goal(self, goal_pos, key_pos, key):
-        for idx, v in self.value.items():
-            node = decode_node(idx)
-            t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
-            if (tuple(k_pos) == tuple(key_pos) and goal_pos == g_pos and key == is_key and tuple(pos) == tuple(goal_pos)):
-                print(v)

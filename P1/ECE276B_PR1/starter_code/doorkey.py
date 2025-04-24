@@ -5,6 +5,9 @@ from minigrid.envs.doorkey import DoorKeyEnv
 from known_env import *
 from unknown_env import *
 from pathlib import Path
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from minigrid.core.world_object import Wall, Goal, Key, Door
 
 MF = 0  # Move Forward
 TL = 1  # Turn Left
@@ -44,7 +47,7 @@ def doorkey_problem(env_path, known=True, t=300):
     else:
         env, info, env_p = load_random_env(env_path)
         # check policy
-        policy_path = Path('output/unknown_sol.npz')
+        policy_path = Path('./output/unknown_sol.npz')
         # run query if policy exist
         if policy_path.exists():
             print("Policy File Exists, Run Query Now")
@@ -60,30 +63,77 @@ def doorkey_problem(env_path, known=True, t=300):
             seq = unknown_env.extract_seq()
     return seq
 
-def draw_trajct(seq, env):
+
+def draw_traj(seq, env, env_name):
     """
-    Draw Trajectory on env based on action sequence
-    Args:
-        seq: action sequence
-        env: environment
+    Given a MiniGrid env, draw all static background: walls, goal, key, doors.
     """
+    gif_path = f'./gif/{env_name}.gif'
+    traj_path = f'./traj/{env_name}.png'
+
+    grid = env.grid
+    width = grid.width
+    height = grid.height
+
+    wall_pos_list = []
+    key_pos_list = []
+    door_pos_list = []
+    goal_pos_list = []
+
     positions = [env.agent_pos]
+    with imageio.get_writer(gif_path, mode="I", duration=0.8) as writer:
+        img = env.render()
+        writer.append_data(img)
+        for act in seq:
+            step(env, act)
+            positions.append(env.agent_pos)
+            img = env.render()
+            writer.append_data(img)
+    print(f"GIF is written to {gif_path}")
+    for x in range(width):
+        for y in range(height):
+            obj = grid.get(x, y)
+            if isinstance(obj, Wall):
+                wall_pos_list.append((x, y))
+            elif isinstance(obj, Key):
+                key_pos_list.append((x, y))
+            elif isinstance(obj, Door):
+                door_pos_list.append((x, y))
+            elif isinstance(obj, Goal):
+                goal_pos_list.append((x, y))
+    fig, ax = plt.subplots(figsize=(width, height))
+    ax.set_xlim(-0.5, width - 0.5)
+    ax.set_ylim(-0.5, height - 0.5)
+    ax.set_aspect('equal')
+    ax.grid(True)
+    ax.invert_yaxis()
+    for x, y in wall_pos_list:
+        rect = patches.Rectangle((x - 0.5, y - 0.5), 1, 1, color='black')
+        ax.add_patch(rect)
+    for x, y in key_pos_list:
+        print(key_pos_list)
+        ax.scatter(x, y, marker='*', color='red', s=500, label='Key')
+    for x, y in door_pos_list:
+        ax.scatter(x, y, marker='s', color='brown', s=300, label='Door')
 
-    img = env.render()
-    for act in seq:
-        step(env, act)
-        positions.append(env.agent_pos)
-    print(positions)
+    for x, y in goal_pos_list:
+        ax.scatter(x, y, marker='P', color='green', s=500, label='Goal')
 
-    plt.imshow(img)
     xs, ys = zip(*positions)
-    plt.plot(xs, ys, color='blue', marker='o')
-    plt.scatter(xs[0], ys[0], color='green', label='Start')
-    plt.scatter(xs[-1], ys[-1], color='red', label='End')
-    plt.legend()
-    plt.axis('off')
-    plt.title("Agent Trajectory Overlay")
+    print(positions)
+    ax.plot(xs, ys, color='blue', marker='o', linewidth=2, markersize=6, label='Agent Trajectory')
 
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+
+    plt.title("Trajectory of Door Key")
+    plt.savefig(traj_path)
+    plt.show()
+    print(f"Trajectory is written to {traj_path}")
+
+def get_env_name(path):
+    return Path(path).stem
 
 
 def partA():
@@ -105,9 +155,8 @@ def partB():
     #seq = unknown_env.extract_optimal_trajectory()
     seq = unknown_env.extract_seq()
     print(seq)
-    #draw_trajct(seq, env)
-    #env.reset()
-    draw_gif_from_seq(seq, env)
+    draw_traj(seq, env, get_env_name(env_p))
+
     #unknown_env.check_goal((7,3), (2,2), True)
 
 
