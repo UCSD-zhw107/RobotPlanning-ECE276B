@@ -53,7 +53,8 @@ def partB():
     #print('Finish')
     env_folder = "./envs/random_envs"
     unknown_env = UnknownEnv(env_folder)
-    seq = unknown_env.extract_optimal_trajectory()
+    #seq = unknown_env.extract_optimal_trajectory()
+    seq = unknown_env.extract_seq()
     print(seq)
     #unknown_env.check_goal((7,3), (2,2), True)
 

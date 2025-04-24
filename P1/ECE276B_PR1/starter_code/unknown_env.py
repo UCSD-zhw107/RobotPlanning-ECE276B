@@ -446,6 +446,62 @@ class UnknownEnv(object):
             node = self.reverse_transition(node, action)
         return traj
 
+    def extract_seq(self):
+        key_pos = self.key_pose
+        goal_pos = self.goal_pose
+        d1_init = int(self.is_door1_open)
+        d2_init = int(self.is_door2_open)
+
+        # initial node
+        valid_init = make_node(
+            0, self.init_agent_pos, self.init_agent_dir,
+            0, d1_init, d2_init, key_pos, goal_pos)
+
+        best_cost, best_traj = np.inf, None
+
+        for idx, v in self.value.items():
+            if v == np.inf:
+                continue
+            node = decode_node(idx)
+            t, pos, dir, is_key, d1, d2, k_pos, g_pos = node
+            # check key pos and goal pose
+            if tuple(pos) != tuple(goal_pos) or tuple(k_pos) != tuple(key_pos):
+                continue
+
+            # filter door state: if two doors are closed initially
+            if d1_init == 0 and d2_init == 0:
+                if (d1, d2) == (0, 0):
+                    continue
+            else:  # If at least 1 door at begining is open
+                if d1 != d1_init or d2 != d2_init:
+                    continue
+
+            # backtrack to start state
+            path, cur = [], node
+            ok = True
+            while cur[TIME] > 0:
+                enc = encode_node(cur)
+                if enc not in self.policy:
+                    ok = False
+                    break
+                a = self.policy[enc]
+                path.append(a)
+                try:
+                    cur = self.reverse_transition(cur, a)
+                except Exception:
+                    ok = False
+                    break
+
+            # any accept valid seq
+            if ok and cur == valid_init and v < best_cost:
+                best_cost = v
+                best_traj = list(reversed(path))
+
+        if best_traj is None:
+            print("No reachable goal found for current env setup.")
+            return []
+        return best_traj
+
     def check_goal(self, goal_pos, key_pos, key):
         for idx, v in self.value.items():
             node = decode_node(idx)
