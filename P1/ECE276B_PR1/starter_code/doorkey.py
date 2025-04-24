@@ -24,7 +24,7 @@ register(
     entry_point='__main__:DoorKey10x10Env'
 )
 
-def doorkey_problem(env_path, known=True, t=300):
+def doorkey_problem(env, info, env_path, known=True, t=300):
     """
     Run DP for either known map problem or unknown map problem.
 
@@ -36,19 +36,17 @@ def doorkey_problem(env_path, known=True, t=300):
     Returns:
         optimal action sequence
     """
-    assert type(env_path) == str, "Please Provide Env Path or Env Folder"
+    assert type(env_path) == str, "Please Provide Env Path"
     seq = []
     # Part A: Known Map Problem
     if known:
         # Run DP for specified map
-        env, info = load_env(env_path)
         known_env = KnownEnv(env, info)
         seq = known_env.fdp()
         print(f'Action Sequence: {seq}')
         draw_traj(seq, env, get_env_name(env_path))
+    # Part B: Known Map Problem
     else:
-        # load random env
-        env, info, env_p = load_random_env(env_path)
         # check policy
         policy_path = Path('./output/unknown_sol.npz')
         # run query if policy exist
@@ -64,8 +62,8 @@ def doorkey_problem(env_path, known=True, t=300):
             print("Policy Computed, Run Query Now")
             unknown_env = UnknownEnv(env,info)
             seq = unknown_env.extract_seq()
-            print(f'Action Sequence: {seq}')
-            draw_traj(seq, env, get_env_name(env_p))
+        print(f'Action Sequence: {seq}')
+        draw_traj(seq, env, get_env_name(env_path))
     return seq
 
 
@@ -140,28 +138,30 @@ def get_env_name(path):
 
 
 def partA(env_path):
-    doorkey_problem(env_path, known=True)
-    #draw_gif_from_seq(seq, load_env(env_path)[0])  # draw a GIF & save
+    """
+    Known Map Problem
+    Args:
+        env_path: specified env path
+    """
+    env, info = load_env(env_path)
+    doorkey_problem(env, info, env_path, known=True)
 
 
-def partB():
-    #unknown_policy = UnknownPolicy(t=300)
-    #unknown_policy.fdp()
-    #print('Finish')
-    env_folder = "./envs/random_envs"
-    env, info, env_p = load_random_env(env_folder)
-    unknown_env = UnknownEnv(env, info)
-    #seq = unknown_env.extract_optimal_trajectory()
-    seq = unknown_env.extract_seq()
-    print(seq)
-    draw_traj(seq, env, get_env_name(env_p))
+def partB(env_folder):
+    """
+    Unknown Map Problem, will load random env
+    Args:
+        env_folder: env folder.
+    """
+    env, info, env_path = load_random_env(env_folder)
+    doorkey_problem(env, info, env_path, known=False)
 
-    #unknown_env.check_goal((7,3), (2,2), True)
 
 
 if __name__ == "__main__":
     # Please Provide a path to .env file for any known map
-    partA('./envs/known_envs/doorkey-8x8-shortcut.env')
+    #partA('./envs/known_envs/doorkey-8x8-shortcut.env')
 
-    # Please Just provide the folder path of the unknown map, if
+    # Please Provide foler path to random env, it will only load random map
+    partB(env_folder='./envs/random_envs')
 
