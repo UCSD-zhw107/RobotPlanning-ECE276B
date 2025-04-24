@@ -334,8 +334,9 @@ class UnknownPolicy(object):
 
 
 class UnknownEnv(object):
-    def __init__(self, env_path):
-        self.env, self.info, self.env_path = load_random_env(env_path)
+    def __init__(self, env, info):
+        self.env = env
+        self.info = info
         self.goal_pose = self.info['goal_pos']
         self.key_pose = self.info['key_pos']
         self.is_door1_open = self.info['door_open'][0]

@@ -51,8 +51,9 @@ def make_state(pos, dir, key, door):
     return (tuple(pos), tuple(dir), key, door)
 
 class KnownEnv(object):
-    def __init__(self, env_path):
-        self.env, self.info = load_env(env_path)
+    def __init__(self, env,info):
+        self.env = env
+        self.info = info
         self.t = 0
         self.value = {}
         self.state = []
