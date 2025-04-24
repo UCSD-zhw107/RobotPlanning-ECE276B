@@ -44,7 +44,10 @@ def doorkey_problem(env_path, known=True, t=300):
         env, info = load_env(env_path)
         known_env = KnownEnv(env, info)
         seq = known_env.fdp()
+        print(f'Action Sequence: {seq}')
+        draw_traj(seq, env, get_env_name(env_path))
     else:
+        # load random env
         env, info, env_p = load_random_env(env_path)
         # check policy
         policy_path = Path('./output/unknown_sol.npz')
@@ -61,6 +64,8 @@ def doorkey_problem(env_path, known=True, t=300):
             print("Policy Computed, Run Query Now")
             unknown_env = UnknownEnv(env,info)
             seq = unknown_env.extract_seq()
+            print(f'Action Sequence: {seq}')
+            draw_traj(seq, env, get_env_name(env_p))
     return seq
 
 
@@ -69,7 +74,7 @@ def draw_traj(seq, env, env_name):
     Given a MiniGrid env, draw all static background: walls, goal, key, doors.
     """
     gif_path = f'./gif/{env_name}.gif'
-    traj_path = f'./traj/{env_name}.png'
+    traj_path = f'./traj/{env_name}_traj.png'
 
     grid = env.grid
     width = grid.width
@@ -111,7 +116,6 @@ def draw_traj(seq, env, env_name):
         rect = patches.Rectangle((x - 0.5, y - 0.5), 1, 1, color='black')
         ax.add_patch(rect)
     for x, y in key_pos_list:
-        print(key_pos_list)
         ax.scatter(x, y, marker='*', color='red', s=500, label='Key')
     for x, y in door_pos_list:
         ax.scatter(x, y, marker='s', color='brown', s=300, label='Door')
@@ -120,7 +124,6 @@ def draw_traj(seq, env, env_name):
         ax.scatter(x, y, marker='P', color='green', s=500, label='Goal')
 
     xs, ys = zip(*positions)
-    print(positions)
     ax.plot(xs, ys, color='blue', marker='o', linewidth=2, markersize=6, label='Agent Trajectory')
 
     handles, labels = ax.get_legend_handles_labels()
@@ -136,12 +139,8 @@ def get_env_name(path):
     return Path(path).stem
 
 
-def partA():
-    env_path = "./envs/known_envs/doorkey-6x6-direct.env"
-    env, info = load_env(env_path)
-    know_env = KnownEnv(env,info)
-    seq = know_env.fdp()
-    print(seq)
+def partA(env_path):
+    doorkey_problem(env_path, known=True)
     #draw_gif_from_seq(seq, load_env(env_path)[0])  # draw a GIF & save
 
 
@@ -161,7 +160,8 @@ def partB():
 
 
 if __name__ == "__main__":
-    #example_use_of_gym_env()
-    #partA()
-    partB()
+    # Please Provide a path to .env file for any known map
+    partA('./envs/known_envs/doorkey-8x8-shortcut.env')
+
+    # Please Just provide the folder path of the unknown map, if
 
