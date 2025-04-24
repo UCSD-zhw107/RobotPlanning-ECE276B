@@ -197,10 +197,13 @@ class UnknownPolicy(object):
     def __init_value(self):
         # initialize value
         # initial node
-        for i in range(self.t, self.T):
+        '''for i in range(self.t, self.T):
             for state in self.init_state:
                 node = make_node_from_state(state, i)
-                self.value[encode_node(node)] = 0.0
+                self.value[encode_node(node)] = 0.0'''
+        for state in self.init_state:
+            node0 = make_node_from_state(state, 0)
+            self.value[encode_node(node0)] = 0.0
         # other node
         for state in self.state:
             if state in self.init_state:
@@ -212,13 +215,13 @@ class UnknownPolicy(object):
             node = make_node_from_state(state, self.t+1)
             self.value[encode_node(node)] = np.inf
         # valid transition at t=1
-        for u in [MF,TL,TR,PK,UD]:
-            for node in self.init_node:
-                next_node, cost = self.transition(node, u)
-                if cost < np.inf:
-                    if self.value.get(encode_node(next_node), np.inf) > cost:
-                        self.value[encode_node(next_node)] = cost
-                        self.policy[encode_node(next_node)] = u
+        for node in self.init_node:
+            for u in [MF,TL,TR,PK,UD]:
+                    next_node, cost = self.transition(node, u)
+                    if cost < np.inf:
+                        if self.value.get(encode_node(next_node), np.inf) > cost:
+                            self.value[encode_node(next_node)] = cost
+                            self.policy[encode_node(next_node)] = u
 
     def transition(self, node, u):
         assert u in [MF, TL, TR, PK, UD], 'Invalid action'
@@ -327,7 +330,7 @@ class UnknownPolicy(object):
                 print(f"[Early Stop] FDP converged at t = {t}")
                 break
 
-        np.savez_compressed("unknown_sol.npz", value=self.value, policy=self.policy)
+        np.savez_compressed("output/unknown_sol.npz", value=self.value, policy=self.policy)
 
 
 class UnknownEnv(object):
@@ -345,7 +348,7 @@ class UnknownEnv(object):
 
     def __load_policy(self):
         # load policy
-        data = np.load("unknown_sol.npz", allow_pickle=True)
+        data = np.load("output/unknown_sol.npz", allow_pickle=True)
         self.value = data["value"].item()
         self.policy = data["policy"].item()
 
@@ -493,6 +496,7 @@ class UnknownEnv(object):
                     break
 
             # any accept valid seq
+            #print(list(reversed(path)))
             if ok and cur == valid_init and v < best_cost:
                 best_cost = v
                 best_traj = list(reversed(path))
