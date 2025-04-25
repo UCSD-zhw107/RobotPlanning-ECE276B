@@ -329,8 +329,8 @@ class UnknownPolicy(object):
             if not updated:
                 print(f"[Early Stop] FDP converged at t = {t}")
                 break
-
-        np.savez_compressed("./output/unknown_sol.npz", value=self.value, policy=self.policy)
+        finite_value = {k: v for k, v in self.value.items() if np.isfinite(v)}
+        np.savez_compressed("./output/unknown_sol.npz", value=finite_value, policy=self.policy)
 
 
 class UnknownEnv(object):

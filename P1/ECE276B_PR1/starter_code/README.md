@@ -44,4 +44,31 @@ You might find some useful tools in utils.py
 ### 3. example.py
 The example.py shows you how to interact with the utilities in utils.py, and also gives you some examples of interacting with gym-minigrid directly.
 
+---
+# Implementation
 
+## 1. known_env.py
+The known_env.py is the implementation of DP that solve the known map problem. 
+
+## 2.uknown_env.py
+The uknown_env.py contains implementation of both
+- DP to compute a single policy dict for all unkown map
+- Query action sequence given pre-computed policy dict and env of given unknown map  
+
+The precomputed policy and value dict are stored at **/output/unknown_sol.npz**
+
+## 3. doorkey.py
+Run doorkey.py to check result, which has following functions
+- **doorkey_problem()**: compute optimal action sequence, plot trajectory and output gif
+- **partA()**: run this function for **known map** problem
+  - It will take path to .env of known map as input
+- **partB()**: run this function for **unkown map** problem
+  - It will take path to folder of unknown map as input
+  - It will only load random map per run
+
+Output trajectory will be stored in **/traj**, output gif will be stored in **/gif**.
+
+### Note
+Unfortunately, due to the large state space, the precomputed policy and value dict are too large. I couldn't include them
+in submission. Therefore, when running **partB()** for the first time, it would take some times to compute policy dict and state dict.
+After the first time, it would be able to use precomputed policy and value dict to query action sequence.
