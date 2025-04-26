@@ -72,3 +72,6 @@ Output trajectory will be stored in **/traj**, output gif will be stored in **/g
 Unfortunately, due to the large state space, the precomputed policy and value dict are too large. I couldn't include them
 in submission. Therefore, when running **partB()** for the first time, it would take some times to compute policy dict and state dict.
 After the first time, it would be able to use precomputed policy and value dict to query action sequence.
+
+Also, numpy in my local environment couldn't load the original .env file in the project package. All .env files in /env folder are re-created .env file applying the
+create_env.py with python packages of my local environment. If running my submission results in errors related to loading the .env files, please try re-generating them using create_env.py to ensure compatibility with your current environment. 
