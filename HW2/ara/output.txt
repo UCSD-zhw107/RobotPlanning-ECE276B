@@ -1,0 +1,57 @@
+================================================
+Iteration 0
+Node exiting OPEN: 2
+OPEN: [5, 6]
+Node 1: inf
+Node 2: 0
+Node 3: inf
+Node 4: inf
+Node 5: 9
+Node 6: 1
+Node 7: inf
+================================================
+Iteration 1
+Node exiting OPEN: 5
+OPEN: [6, 3]
+Node 1: inf
+Node 2: 0
+Node 3: 10
+Node 4: inf
+Node 5: 9
+Node 6: 1
+Node 7: inf
+================================================
+Iteration 2
+Node exiting OPEN: 6
+OPEN: [1, 7, 3]
+Node 1: 6
+Node 2: 0
+Node 3: 10
+Node 4: inf
+Node 5: 9
+Node 6: 1
+Node 7: 6
+================================================
+Iteration 3
+Node exiting OPEN: 1
+OPEN: [3, 7]
+Node 1: 6
+Node 2: 0
+Node 3: 10
+Node 4: inf
+Node 5: 8
+Node 6: 1
+Node 7: 6
+================================================
+Iteration 4
+Node exiting OPEN: 3
+OPEN: [4, 7]
+Node 1: 6
+Node 2: 0
+Node 3: 10
+Node 4: 11
+Node 5: 8
+Node 6: 1
+Node 7: 6
+
+inconsist = 5
