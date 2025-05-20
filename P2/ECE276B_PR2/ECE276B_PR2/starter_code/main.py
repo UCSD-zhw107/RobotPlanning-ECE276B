@@ -86,14 +86,9 @@ def runtest(mapfile, start, goal, verbose = True):
   # Load a map and instantiate a motion planner
   boundary, blocks = load_map(mapfile)
 
-  # build graph
-  t1 = tic()
-  graph = Graph(boundary, blocks)
-  vertices, edges = graph.build_graph(start, goal)
-  toc(t1, "Building graph")
 
   #MP = Planner.MyPlanner(boundary, blocks) # TODO: replace this with your own planner implementation
-  MP = AStar(start, goal, blocks, edges, vertices)
+  MP = AStar(start, goal, blocks, boundary)
 
 
 

@@ -44,3 +44,12 @@ def is_in_collision(p, blocks):
             block[2] <= p[2] <= block[5]):
             return True
     return False
+
+
+def is_in_boundary(p, boundary):
+    """Check if point p is inside the boundary."""
+    xmin, ymin, zmin, xmax, ymax, zmax = boundary[0][:6]
+    # outside boundary
+    if not (xmin <= p[0] <= xmax and ymin <= p[1] <= ymax and zmin <= p[2] <= zmax):
+        return False
+    return True

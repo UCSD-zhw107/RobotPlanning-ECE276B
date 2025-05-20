@@ -1,9 +1,10 @@
 
 # priority queue for OPEN list
+from collections import defaultdict
 import numpy as np
 from pqdict import pqdict
 import math
-from utils import check_all_blocks
+from utils import check_all_blocks, is_in_boundary
 
 class AStarNode(object):
   def __init__(self, key):
@@ -12,7 +13,6 @@ class AStarNode(object):
     self.f = math.inf
     self.h = math.inf
     self.parent_node = None
-    self.children = []
     self.is_open = False
     self.closed = False
 
@@ -22,8 +22,6 @@ class AStarNode(object):
   def setParent(self,parent):
     self.parent_node = parent
 
-  def setChildren(self,children):
-    self.children = children
 
   def setG(self, g):
     self.g = g
@@ -52,34 +50,54 @@ class AStarNode(object):
   def getParent(self):
     return self.parent_node
   
-  def getChildren(self):
-    return self.children
   
 
 class AStar(object):
-  def __init__(self, start, goal, blocks, edges, vertices, epsilon = 1):
+  def __init__(self, start, goal, blocks, boundary, epsilon = 1, map_resolution=0.5, edge_cost=1.0):
     self.start = tuple(round(coord, 1) for coord in start)
     self.goal = tuple(round(coord, 1) for coord in goal)
     self.blocks = blocks
-    self.edges = edges
-    self.vertices = vertices
+    self.boundary = boundary
     self.epsilon = epsilon
+    self.map_resolution = map_resolution
+    self.edge_cost = edge_cost
+
+
 
   def initialize(self):
     open_heap = pqdict().minpq()
     nodes = {}
-    for v in self.vertices:
-      node = AStarNode(v)
-      node.setHeuristic(self.compute_heuristic(v, self.goal), self.epsilon)
-      node.setChildren(list(self.edges[v].keys()))
-      if v == self.start:
-        node.setG(0)
-        node.is_open = True
-        f = node.getF()
-        open_heap[v] = (f, v)
-      nodes[v] = node
+    # set up start node
+    start_node = AStarNode(self.start)
+    start_node.setHeuristic(self.compute_heuristic(self.start, self.goal), self.epsilon)
+    start_node.setG(0)
+    start_node.is_open = True
+    f = start_node.getF()
+    open_heap[self.start] = (f, self.start)
+    nodes[self.start] = start_node
     return open_heap, nodes
   
+
+  def generate_neighbors(self, node_key):
+    # generate neighbors for a node
+    offsets = []
+    for dx in [-self.map_resolution, 0, self.map_resolution]:
+        for dy in [-self.map_resolution, 0, self.map_resolution]:
+            for dz in [-self.map_resolution, 0, self.map_resolution]:
+                if dx == dy == dz == 0:
+                    continue
+                offsets.append((dx, dy, dz))
+    for dx, dy, dz in offsets:
+        neighbor = (round(node_key[0] + dx, 1), round(node_key[1] + dy, 1), round(node_key[2] + dz, 1))
+        # check boundary
+        if not is_in_boundary(neighbor, self.boundary):
+            continue
+        # check collision
+        if check_all_blocks(node_key, neighbor, self.blocks):
+            continue
+        yield neighbor, self.edge_cost
+
+
   def find_node(self, nodes, key):
     return nodes.get(key)
     
@@ -97,6 +115,11 @@ class AStar(object):
       path.append(np.array(current.key))
       current = current.getParent()
     return np.array(list(reversed(path)))
+  
+
+  def is_goal(self, node_key):
+    return np.linalg.norm(np.array(node_key) - np.array(self.goal)) <= np.sqrt(0.1)
+
 
   def plan(self):
     self.open_heap, self.nodes = self.initialize()
@@ -110,19 +133,23 @@ class AStar(object):
       current_node.closed = True
       self.closed_list.append(current_key)
       
-      if current_key == self.goal:
+      # check if reached goal
+      if self.is_goal(current_key):
         return self.get_path(self.nodes, current_key)
       
-      for child_key, edge_cost in self.edges[current_key].items():
-        child_node = self.find_node(self.nodes, child_key)
+      # find neighbors
+      for child_key, edge_cost in self.generate_neighbors(current_key):
+        # check if child node is in nodes
+        child_node = None
+        if child_key not in self.nodes:
+          child_node = AStarNode(child_key)
+          child_node.setHeuristic(self.compute_heuristic(child_key, self.goal), self.epsilon)
+          self.nodes[child_key] = child_node
+        else:
+          child_node = self.find_node(self.nodes, child_key)
         # check if child node is in closed list
         if child_node.isClosed():
           continue
-        
-        # check collision
-        if check_all_blocks(current_node.key, child_node.key, self.blocks):
-          continue
-        
         tentative_g = current_node.getG() + edge_cost
         if tentative_g < child_node.getG():
           child_node.setG(tentative_g)

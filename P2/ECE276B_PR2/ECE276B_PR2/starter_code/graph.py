@@ -4,6 +4,11 @@ from utils import is_in_collision
 
 
 class Graph:
+    """
+    Build a graph from the boundary and blocks.
+    """
+    # NOTE: Not used anymore
+    
     def __init__(self, boundary, blocks):
         self.boundary = boundary
         self.blocks = blocks
