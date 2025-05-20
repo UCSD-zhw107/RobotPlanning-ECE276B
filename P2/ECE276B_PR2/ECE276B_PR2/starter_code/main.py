@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt; plt.ion()
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import Planner
-from utils import check_collision
+from utils import check_all_blocks
+from graph import Graph
+from astar import AStar
 def tic():
   return time.time()
 def toc(tstart, nm=""):
@@ -83,17 +85,32 @@ def runtest(mapfile, start, goal, verbose = True):
   '''
   # Load a map and instantiate a motion planner
   boundary, blocks = load_map(mapfile)
-  MP = Planner.MyPlanner(boundary, blocks) # TODO: replace this with your own planner implementation
-  
+
+  # build graph
+  t1 = tic()
+  graph = Graph(boundary, blocks)
+  vertices, edges = graph.build_graph(start, goal)
+  toc(t1, "Building graph")
+
+  #MP = Planner.MyPlanner(boundary, blocks) # TODO: replace this with your own planner implementation
+  MP = AStar(start, goal, blocks, edges, vertices)
+
+
+
   # Display the environment
   if verbose:
     fig, ax, hb, hs, hg = draw_map(boundary, blocks, start, goal)
 
   # Call the motion planner
   t0 = tic()
-  path = MP.plan(start, goal)
+  #path = MP.plan(start, goal)
+  path = MP.plan()
   toc(t0,"Planning")
-  
+
+
+  if path is None:
+    print("No path found.")
+    return False, 0.0
   # Plot the path
   if verbose:
     ax.plot(path[:,0],path[:,1],path[:,2],'r-')
@@ -105,14 +122,13 @@ def runtest(mapfile, start, goal, verbose = True):
   # NOTE: check for collision
   collision = False
   for i in range(len(path)-1):
-    for block in blocks:
-      if check_collision(path[i], path[i+1], block[:6]):
-        print("Collision detected at segment: ", i)
-        collision = True
-        break
+    if check_all_blocks(path[i], path[i+1], blocks): # NOTE: check_collision() is in utils.py
+      print("Collision detected at segment: ", i)
+      collision = True
+      break
   print("Collision: ", collision)
 
-  
+
   goal_reached = sum((path[-1]-goal)**2) <= 0.1
   success = (not collision) and goal_reached
   pathlength = np.sum(np.sqrt(np.sum(np.diff(path,axis=0)**2,axis=1)))
@@ -190,8 +206,8 @@ def test_pillars(verbose = True):
 
 if __name__=="__main__":
   #test_single_cube()
-  #test_maze()
-  test_flappy_bird()
+  test_maze()
+  #test_flappy_bird()
   #test_pillars()
   #test_window()
   #test_tower()
