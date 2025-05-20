@@ -74,7 +74,7 @@ def draw_block_list(ax,blocks):
     return h
 
 
-def runtest(mapfile, start, goal, verbose = True):
+def runtest(mapfile, start, goal, verbose = True, mp_type = 'astar', param = {}):
   '''
   This function:
    * loads the provided mapfile
@@ -88,10 +88,14 @@ def runtest(mapfile, start, goal, verbose = True):
 
 
   #MP = Planner.MyPlanner(boundary, blocks) # TODO: replace this with your own planner implementation
-  MP = AStar(start, goal, blocks, boundary)
-
-
-
+  MP = None
+  if mp_type == 'astar':
+    map_resolution = param['map_resolution']
+    epsilon = param['epsilon']
+    MP = AStar(start, goal, blocks, boundary, map_resolution=map_resolution, epsilon=epsilon)
+    print("A* planner initialized")
+    print(f'Map resolution: {map_resolution}')
+    print(f'Epsilon: {epsilon}')
   # Display the environment
   if verbose:
     fig, ax, hb, hs, hg = draw_map(boundary, blocks, start, goal)
@@ -101,7 +105,6 @@ def runtest(mapfile, start, goal, verbose = True):
   #path = MP.plan(start, goal)
   path = MP.plan()
   toc(t0,"Planning")
-
 
   if path is None:
     print("No path found.")
@@ -130,83 +133,94 @@ def runtest(mapfile, start, goal, verbose = True):
   return success, pathlength
 
 
-def test_single_cube(verbose = True):
+def test_single_cube(verbose = True, mp_type = 'astar', param = {}):
   print('Running single cube test...\n') 
   start = np.array([7.0, 7.0, 5.5])
   goal = np.array([2.3, 2.3, 1.3])
-  success, pathlength = runtest('./maps/single_cube.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/single_cube.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
   
 
-def test_maze(verbose = True):
+def test_maze(verbose = True, mp_type = 'astar', param = {}):
   print('Running maze test...\n') 
   start = np.array([0.0, 0.0, 1.0])
   goal = np.array([12.0, 12.0, 5.0])
-  success, pathlength = runtest('./maps/maze.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/maze.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
 
     
-def test_window(verbose = True):
+def test_window(verbose = True, mp_type = 'astar', param = {}):
   print('Running window test...\n') 
   start = np.array([6, -4.9, 2.8])
   goal = np.array([2.0, 19.5, 5.5])
-  success, pathlength = runtest('./maps/window.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/window.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
 
   
-def test_tower(verbose = True):
+def test_tower(verbose = True, mp_type = 'astar', param = {}):
   print('Running tower test...\n') 
   start = np.array([4.0, 2.5, 19.5])
   goal = np.array([2.5, 4.0, 0.5])
-  success, pathlength = runtest('./maps/tower.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/tower.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
 
      
-def test_flappy_bird(verbose = True):
+def test_flappy_bird(verbose = True, mp_type = 'astar', param = {}):
   print('Running flappy bird test...\n') 
   start = np.array([0.5, 4.5, 5.5])
   goal = np.array([19.5, 1.5, 1.5])
-  success, pathlength = runtest('./maps/flappy_bird.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/flappy_bird.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength) 
   print('\n')
 
   
-def test_room(verbose = True):
+def test_room(verbose = True, mp_type = 'astar', param = {}):
   print('Running room test...\n') 
   start = np.array([1.0, 5.0, 1.5])
   goal = np.array([9.0, 7.0, 1.5])
-  success, pathlength = runtest('./maps/room.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/room.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
 
-def test_pillars(verbose = True):
+def test_pillars(verbose = True, mp_type = 'astar', param = {}):
   print('Running pillars test...\n') 
   start = np.array([0.5, 0.5, 0.5])
   goal = np.array([19, 19, 9])
-  success, pathlength = runtest('./maps/pillars.txt', start, goal, verbose)
+  success, pathlength = runtest('./maps/pillars.txt', start, goal, verbose, mp_type, param)
   print('Success: %r'%success)
   print('Path length: %f'%pathlength)
   print('\n')
 
 
 if __name__=="__main__":
-  #test_single_cube()
-  test_maze()
-  #test_flappy_bird()
-  #test_pillars()
-  #test_window()
-  #test_tower()
-  #test_room()
+  # NOTE: astar for part 2, rrt for part 3
+  MP_LIST = ['astar', 'rrt']
+  param = {}
+  MP_TYPE = MP_LIST[0] # NOTE: Now use astar
+
+
+  if MP_TYPE == 'astar':
+    param['map_resolution'] = 0.2 # NOTE: map resolution
+    param['epsilon'] = 5.0
+  
+
+  test_single_cube(mp_type=MP_TYPE, param=param)
+  test_maze(mp_type=MP_TYPE, param=param)
+  test_flappy_bird(mp_type=MP_TYPE, param=param)
+  test_pillars(mp_type=MP_TYPE, param=param)
+  test_window(mp_type=MP_TYPE, param=param)
+  test_tower(mp_type=MP_TYPE, param=param)
+  test_room(mp_type=MP_TYPE, param=param)
   plt.show(block=True)
 
 

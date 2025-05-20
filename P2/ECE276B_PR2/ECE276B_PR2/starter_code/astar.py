@@ -54,14 +54,19 @@ class AStarNode(object):
 
 class AStar(object):
   def __init__(self, start, goal, blocks, boundary, epsilon = 1, map_resolution=0.5, edge_cost=1.0):
+    self.map_resolution = map_resolution
+    #self.start = self.snap_point(start, map_resolution)
+    #self.goal = self.snap_point(goal, map_resolution)
     self.start = tuple(round(coord, 1) for coord in start)
     self.goal = tuple(round(coord, 1) for coord in goal)
     self.blocks = blocks
     self.boundary = boundary
     self.epsilon = epsilon
-    self.map_resolution = map_resolution
     self.edge_cost = edge_cost
 
+  @staticmethod
+  def snap_point(p, map_resolution):
+    return tuple(round(round(coord / map_resolution) * map_resolution, 1) for coord in p)
 
 
   def initialize(self):
@@ -87,6 +92,7 @@ class AStar(object):
                 if dx == dy == dz == 0:
                     continue
                 offsets.append((dx, dy, dz))
+    # generate neighbors
     for dx, dy, dz in offsets:
         neighbor = (round(node_key[0] + dx, 1), round(node_key[1] + dy, 1), round(node_key[2] + dz, 1))
         # check boundary
@@ -96,6 +102,11 @@ class AStar(object):
         if check_all_blocks(node_key, neighbor, self.blocks):
             continue
         yield neighbor, self.edge_cost
+    
+    # check if can reach goal
+    if np.linalg.norm(np.array(node_key) - np.array(self.goal)) <= self.map_resolution:
+      if not check_all_blocks(node_key, self.goal, self.blocks):
+          yield self.goal, self.edge_cost
 
 
   def find_node(self, nodes, key):
@@ -118,7 +129,8 @@ class AStar(object):
   
 
   def is_goal(self, node_key):
-    return np.linalg.norm(np.array(node_key) - np.array(self.goal)) <= np.sqrt(0.1)
+    #return np.linalg.norm(np.array(node_key) - np.array(self.goal)) <= np.sqrt(0.1)
+    return node_key == self.goal
 
 
   def plan(self):
