@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt; plt.ion()
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import Planner
-
+from utils import check_collision
 def tic():
   return time.time()
 def toc(tstart, nm=""):
@@ -101,7 +101,18 @@ def runtest(mapfile, start, goal, verbose = True):
   # TODO: You should verify whether the path actually intersects any of the obstacles in continuous space
   # TODO: You can implement your own algorithm or use an existing library for segment and 
   #       axis-aligned bounding box (AABB) intersection
+
+  # NOTE: check for collision
   collision = False
+  for i in range(len(path)-1):
+    for block in blocks:
+      if check_collision(path[i], path[i+1], block[:6]):
+        print("Collision detected at segment: ", i)
+        collision = True
+        break
+  print("Collision: ", collision)
+
+  
   goal_reached = sum((path[-1]-goal)**2) <= 0.1
   success = (not collision) and goal_reached
   pathlength = np.sum(np.sqrt(np.sum(np.diff(path,axis=0)**2,axis=1)))
@@ -178,13 +189,13 @@ def test_pillars(verbose = True):
 
 
 if __name__=="__main__":
-  test_single_cube()
-  test_maze()
+  #test_single_cube()
+  #test_maze()
   test_flappy_bird()
-  test_pillars()
-  test_window()
-  test_tower()
-  test_room()
+  #test_pillars()
+  #test_window()
+  #test_tower()
+  #test_room()
   plt.show(block=True)
 
 
