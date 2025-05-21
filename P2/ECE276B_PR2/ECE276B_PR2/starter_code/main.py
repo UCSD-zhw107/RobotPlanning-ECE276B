@@ -7,7 +7,7 @@ import Planner
 from utils import check_all_blocks
 from graph import Graph
 from astar import AStar
-from rrt import RRT
+from rrt import RRTStar
 def tic():
   return time.time()
 def toc(tstart, nm=""):
@@ -99,11 +99,13 @@ def runtest(mapfile, start, goal, verbose = True, mp_type = 'astar', param = {})
     print(f'Map resolution: {map_resolution}')
     print(f'Epsilon: {epsilon}')
   # RRT
-  elif mp_type == 'rrt':
+  elif mp_type == 'rrt_star':
     time_limit = param['time_limit']
-    MP = RRT(start, goal, blocks, boundary, time_limit=time_limit)
-    print('RRT planner initialized')
+    search_range = param['search_range']
+    MP = RRTStar(start, goal, blocks, boundary, time_limit=time_limit, search_range=search_range)
+    print('RRT Star planner initialized')
     print(f'Time Limit: {time_limit}')
+    print(f'Search Range: {search_range}')
   else:
     print("Invalid Planner")
     return False, 0.0
@@ -215,22 +217,23 @@ def test_pillars(verbose = True, mp_type = 'astar', param = {}):
 
 
 if __name__=="__main__":
-  # NOTE: astar for part 2, rrt for part 3
-  MP_LIST = ['astar', 'rrt']
+  # NOTE: astar for part 2, rrt_star for part 3
+  MP_LIST = ['astar', 'rrt_star']
   param = {}
   MP_TYPE = MP_LIST[1] # NOTE: Now use astar
 
   # params
   if MP_TYPE == 'astar':
-    param['map_resolution'] = 0.2 # NOTE: map resolution
+    param['map_resolution'] = 0.2 
     param['epsilon'] = 5.0
-  elif MP_TYPE == 'rrt':
+  elif MP_TYPE == 'rrt_star':
     param['time_limit'] = 60.0
+    param['search_range'] = 1.0
   
 
   #test_single_cube(mp_type=MP_TYPE, param=param)
-  test_maze(mp_type=MP_TYPE, param=param)
-  #test_flappy_bird(mp_type=MP_TYPE, param=param)
+  #test_maze(mp_type=MP_TYPE, param=param)
+  test_flappy_bird(mp_type=MP_TYPE, param=param)
   #test_pillars(mp_type=MP_TYPE, param=param)
   #test_window(mp_type=MP_TYPE, param=param)
   #test_tower(mp_type=MP_TYPE, param=param)

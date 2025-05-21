@@ -4,9 +4,10 @@ from ompl import geometric as og
 from utils import is_in_boundary, is_in_collision, check_all_blocks
 
 
-class MyMotionValidator(ob.MotionValidator):
+class AABBMotionValidator(ob.MotionValidator):
+    """Motion Validator use line segment AABBs collision checker to check valid motion"""
     def __init__(self, si, check_function, blocks):
-        super(MyMotionValidator, self).__init__(si)
+        super(AABBMotionValidator, self).__init__(si)
         self.check_function = check_function
         self.blocks = blocks
         
@@ -19,13 +20,14 @@ class MyMotionValidator(ob.MotionValidator):
 
 
 
-class RRT(object):
-    def __init__(self, start, goal, blocks, boundary, time_limit=60.0):
+class RRTStar(object):
+    def __init__(self, start, goal, blocks, boundary, time_limit=60.0,search_range=1.0):
         self.start = tuple(round(coord, 1) for coord in start)
         self.goal = tuple(round(coord, 1) for coord in goal)
         self.blocks = blocks
         self.boundary = boundary
         self.time_limit = time_limit
+        self.search_range = search_range
     
 
     def is_state_valid(self, state):
@@ -68,7 +70,7 @@ class RRT(object):
         si.setStateValidityChecker(ob.StateValidityCheckerFn(self.is_state_valid))
 
         # motion validity checker
-        motion_validator = MyMotionValidator(si, check_all_blocks, self.blocks)
+        motion_validator = AABBMotionValidator(si, check_all_blocks, self.blocks)
         si.setMotionValidator(motion_validator)
 
         # set start and goal
@@ -83,9 +85,17 @@ class RRT(object):
         pdef.setStartAndGoalStates(start_state, goal_state)
 
         # define planner
-        planner = og.RRT(si)
+        planner = og.RRTstar(si)
         planner.setProblemDefinition(pdef)
+        planner.setRange(self.search_range)
+        planner.setGoalBias(0.05)
+        planner.setRewireFactor(1.1)
+        planner.setDelayCC(True)
+        planner.setTreePruning(True)
+        planner.setPruneThreshold(0.1)
+        planner.setKNearest(False)
         planner.setup()
+
 
         return planner, pdef, si
     
