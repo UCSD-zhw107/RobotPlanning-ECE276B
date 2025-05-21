@@ -3,10 +3,11 @@ Running single cube test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 0.01804804801940918 sec.
+Planning took: 0.011808395385742188 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 31
+Success: np.True_
 Path length: 8.264563
 
 
@@ -15,10 +16,11 @@ Running maze test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 525.5580611228943 sec.
+Planning took: 166.92856216430664 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 132785
+Success: np.True_
 Path length: 79.507238
 
 
@@ -27,10 +29,11 @@ Running flappy bird test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 60.7618625164032 sec.
+Planning took: 22.77711272239685 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 40196
+Success: np.True_
 Path length: 29.887283
 
 
@@ -39,10 +42,11 @@ Running pillars test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 3.7998788356781006 sec.
+Planning took: 1.1120965480804443 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 1050
+Success: np.True_
 Path length: 31.320353
 
 
@@ -51,10 +55,11 @@ Running window test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 150.79425072669983 sec.
+Planning took: 47.06328368186951 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 63400
+Success: np.True_
 Path length: 29.792917
 
 
@@ -63,10 +68,11 @@ Running tower test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 124.82251834869385 sec.
+Planning took: 29.514951944351196 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 19668
+Success: np.True_
 Path length: 28.628558
 
 
@@ -75,8 +81,9 @@ Running room test...
 A* planner initialized
 Map resolution: 0.2
 Epsilon: 5.0
-Planning took: 11.993343114852905 sec.
+Planning took: 3.3646228313446045 sec.
 
 Collision:  False
-Success: True
+Expanded Nodes: 2588
+Success: np.True_
 Path length: 11.822540

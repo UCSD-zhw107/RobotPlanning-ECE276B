@@ -29,11 +29,11 @@ It contains implementation of collision checking and boundary checking for the p
 
 ### astar.py
 
-It contains the implementation of the A star algorithm.
+It contains the implementation of the A star algorithm. The results and path images are in /astar folder
 
 ### rrt.py
 
-It contains the RRT star algorithm which applies RRTstar from OMPL.
+It contains the RRT star algorithm which applies RRTstar from OMPL. The results and path images are in /rrt folder
 
 
 太好了，你问得非常到位。我们就以 **x 轴这一维** 来说明 **Slabs 方法为啥有效**，你会发现它其实非常直观！

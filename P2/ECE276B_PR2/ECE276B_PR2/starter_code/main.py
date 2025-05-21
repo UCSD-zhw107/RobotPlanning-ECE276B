@@ -140,6 +140,9 @@ def runtest(mapfile, start, goal, verbose = True, mp_type = 'astar', param = {})
       break
   print("Collision: ", collision)
 
+  if mp_type == 'astar':
+    print(f'Expanded Nodes: {len(MP.closed_list)}')
+
 
   goal_reached = sum((path[-1]-goal)**2) <= 0.1
   success = (not collision) and goal_reached
@@ -220,7 +223,7 @@ if __name__=="__main__":
   # NOTE: astar for part 2, rrt_star for part 3
   MP_LIST = ['astar', 'rrt_star']
   param = {}
-  MP_TYPE = MP_LIST[1] # NOTE: Now use astar
+  MP_TYPE = MP_LIST[0] # NOTE: Now use astar
 
   # params
   if MP_TYPE == 'astar':
@@ -228,16 +231,16 @@ if __name__=="__main__":
     param['epsilon'] = 5.0
   elif MP_TYPE == 'rrt_star':
     param['time_limit'] = 60.0
-    param['search_range'] = 1.0
+    param['search_range'] = 3.0
   
 
-  #test_single_cube(mp_type=MP_TYPE, param=param)
-  #test_maze(mp_type=MP_TYPE, param=param)
+  test_single_cube(mp_type=MP_TYPE, param=param)
+  test_maze(mp_type=MP_TYPE, param=param)
   test_flappy_bird(mp_type=MP_TYPE, param=param)
-  #test_pillars(mp_type=MP_TYPE, param=param)
-  #test_window(mp_type=MP_TYPE, param=param)
-  #test_tower(mp_type=MP_TYPE, param=param)
-  #test_room(mp_type=MP_TYPE, param=param)
+  test_pillars(mp_type=MP_TYPE, param=param)
+  test_window(mp_type=MP_TYPE, param=param)
+  test_tower(mp_type=MP_TYPE, param=param)
+  test_room(mp_type=MP_TYPE, param=param)
   plt.show(block=True)
 
 

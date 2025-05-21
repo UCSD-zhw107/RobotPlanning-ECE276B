@@ -77,8 +77,9 @@ class RRTStar(object):
         start_state = ob.State(space)
         goal_state = ob.State(space)
         for i in range(3):
-            start_state[i] = self.start[i]
-            goal_state[i] = self.goal[i]
+            start_state[i] = float(self.start[i])
+            goal_state[i] = float(self.goal[i])
+
 
         # set problem definition
         pdef = ob.ProblemDefinition(si)
