@@ -16,7 +16,24 @@ This file contains a class defining a node for the A* algorithm as well as an in
 This folder contains 7 test environments described via a rectangular outer boundary and a list of rectangular obstacles. The start and goal points for each environment are specified in main.py.
 
 
+## Usage
 
+### main.py
+
+To use either **A Star** or **RRT Star**, please modify the main.py (if __name__ == "__main__" part), you can also sepcify different param for each planner. **You would need to install OMPL to run RRT Star**.
+
+
+### utils.py
+
+It contains implementation of collision checking and boundary checking for the part 1 of this project
+
+### astar.py
+
+It contains the implementation of the A star algorithm.
+
+### rrt.py
+
+It contains the RRT star algorithm which applies RRTstar from OMPL.
 
 
 太好了，你问得非常到位。我们就以 **x 轴这一维** 来说明 **Slabs 方法为啥有效**，你会发现它其实非常直观！
