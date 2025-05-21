@@ -7,6 +7,7 @@ import Planner
 from utils import check_all_blocks
 from graph import Graph
 from astar import AStar
+from rrt import RRT
 def tic():
   return time.time()
 def toc(tstart, nm=""):
@@ -89,6 +90,7 @@ def runtest(mapfile, start, goal, verbose = True, mp_type = 'astar', param = {})
 
   #MP = Planner.MyPlanner(boundary, blocks) # TODO: replace this with your own planner implementation
   MP = None
+  # A*
   if mp_type == 'astar':
     map_resolution = param['map_resolution']
     epsilon = param['epsilon']
@@ -96,6 +98,16 @@ def runtest(mapfile, start, goal, verbose = True, mp_type = 'astar', param = {})
     print("A* planner initialized")
     print(f'Map resolution: {map_resolution}')
     print(f'Epsilon: {epsilon}')
+  # RRT
+  elif mp_type == 'rrt':
+    time_limit = param['time_limit']
+    MP = RRT(start, goal, blocks, boundary, time_limit=time_limit)
+    print('RRT planner initialized')
+    print(f'Time Limit: {time_limit}')
+  else:
+    print("Invalid Planner")
+    return False, 0.0
+
   # Display the environment
   if verbose:
     fig, ax, hb, hs, hg = draw_map(boundary, blocks, start, goal)
@@ -206,21 +218,23 @@ if __name__=="__main__":
   # NOTE: astar for part 2, rrt for part 3
   MP_LIST = ['astar', 'rrt']
   param = {}
-  MP_TYPE = MP_LIST[0] # NOTE: Now use astar
+  MP_TYPE = MP_LIST[1] # NOTE: Now use astar
 
-
+  # params
   if MP_TYPE == 'astar':
     param['map_resolution'] = 0.2 # NOTE: map resolution
     param['epsilon'] = 5.0
+  elif MP_TYPE == 'rrt':
+    param['time_limit'] = 60.0
   
 
-  test_single_cube(mp_type=MP_TYPE, param=param)
+  #test_single_cube(mp_type=MP_TYPE, param=param)
   test_maze(mp_type=MP_TYPE, param=param)
-  test_flappy_bird(mp_type=MP_TYPE, param=param)
-  test_pillars(mp_type=MP_TYPE, param=param)
-  test_window(mp_type=MP_TYPE, param=param)
-  test_tower(mp_type=MP_TYPE, param=param)
-  test_room(mp_type=MP_TYPE, param=param)
+  #test_flappy_bird(mp_type=MP_TYPE, param=param)
+  #test_pillars(mp_type=MP_TYPE, param=param)
+  #test_window(mp_type=MP_TYPE, param=param)
+  #test_tower(mp_type=MP_TYPE, param=param)
+  #test_room(mp_type=MP_TYPE, param=param)
   plt.show(block=True)
 
 
