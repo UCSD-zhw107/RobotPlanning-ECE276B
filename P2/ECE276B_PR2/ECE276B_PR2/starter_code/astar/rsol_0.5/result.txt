@@ -1,0 +1,89 @@
+Running single cube test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 0.1609511375427246 sec.
+
+Collision:  False
+Expanded Nodes: 551
+Success: np.True_
+Path length: 8.322802
+
+
+Running maze test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 17.035842418670654 sec.
+
+Collision:  False
+Expanded Nodes: 15694
+Success: np.True_
+Path length: 81.555985
+
+
+Running flappy bird test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 2.549389362335205 sec.
+
+Collision:  False
+Expanded Nodes: 4820
+Success: np.True_
+Path length: 29.629117
+
+
+Running pillars test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 10.12126612663269 sec.
+
+Collision:  False
+Expanded Nodes: 9487
+Success: np.True_
+Path length: 31.934300
+
+
+Running window test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 7.297871351242065 sec.
+
+Collision:  False
+Expanded Nodes: 10819
+Success: np.True_
+Path length: 30.174690
+
+
+Running tower test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 3.231835126876831 sec.
+
+Collision:  False
+Expanded Nodes: 2823
+Success: np.True_
+Path length: 32.848513
+
+
+Running room test...
+
+A* planner initialized
+Map resolution: 0.5
+Epsilon: 1.0
+Planning took: 1.1262903213500977 sec.
+
+Collision:  False
+Expanded Nodes: 962
+Success: np.True_
+Path length: 12.899495

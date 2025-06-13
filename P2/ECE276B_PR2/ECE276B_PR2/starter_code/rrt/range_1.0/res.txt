@@ -1,0 +1,124 @@
+Running single cube test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 10.91 in 85 iterations (86 vertices in the graph)
+Info:    RRTstar: Created 507927 new states. Checked 20305376 rewire options. 1 goal states in tree. Final solution cost 7.997
+Planning took: 60.21495795249939 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 7.996841
+
+
+Running maze test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 103.51 in 18907 iterations (3720 vertices in the graph)
+Info:    RRTstar: Created 181524 new states. Checked 6810272 rewire options. 1 goal states in tree. Final solution cost 73.254
+Planning took: 60.15850472450256 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 73.254195
+
+
+Running flappy bird test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 46.06 in 1285 iterations (733 vertices in the graph)
+Info:    RRTstar: Created 245905 new states. Checked 10867581 rewire options. 1 goal states in tree. Final solution cost 26.797
+Planning took: 60.2293004989624 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 26.797486
+
+
+Running pillars test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 39.98 in 770 iterations (375 vertices in the graph)
+Info:    RRTstar: Created 205140 new states. Checked 9899100 rewire options. 1 goal states in tree. Final solution cost 28.789
+Planning took: 60.19707274436951 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 28.788806
+
+
+Running window test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 37.71 in 902 iterations (672 vertices in the graph)
+Info:    RRTstar: Created 270212 new states. Checked 10877642 rewire options. 1 goal states in tree. Final solution cost 25.871
+Planning took: 60.15899395942688 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 25.871100
+
+
+Running tower test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 36.02 in 2613 iterations (925 vertices in the graph)
+Info:    RRTstar: Created 188091 new states. Checked 8082704 rewire options. 1 goal states in tree. Final solution cost 27.447
+Planning took: 60.12516641616821 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 27.446862
+
+
+Running room test...
+
+RRT Star planner initialized
+Time Limit: 60.0
+Search Range: 1.0
+Info:    RRTstar: Space information setup was not yet called. Calling now.
+Info:    RRTstar: No optimization objective specified. Defaulting to optimizing path length for the allowed planning time.
+Info:    RRTstar: Started planning with 1 states. Seeking a solution better than 0.00000.
+Info:    RRTstar: Initial rewiring radius of 1.00
+Info:    RRTstar: Found an initial solution with a cost of 24.60 in 442 iterations (172 vertices in the graph)
+Info:    RRTstar: Created 232315 new states. Checked 12086357 rewire options. 1 goal states in tree. Final solution cost 10.689
+Planning took: 60.215803384780884 sec.
+
+Collision:  False
+Success: np.True_
+Path length: 10.688968
